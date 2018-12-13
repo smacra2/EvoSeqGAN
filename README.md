@@ -13,6 +13,7 @@ Given two datasets: (1) containing real sequence pairs consisting of a modern hu
    on the above two datasets. 
    
    a) Find data cleaning, model training, testing, and plotting code in src folder.
+   b) Find plots and diagrams in root.
 
 2. (To come) A generator model that creates candidate sequence pairs.
 
