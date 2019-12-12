@@ -37,23 +37,46 @@ def read_matches(fname, tag1, tag2):
 
     # Handle case where reference sequence exists, but not the corresponding candidate sequence
     # Match with read sequence
-    matches = []
+    concat_ref = []
+    concat_cnd = []
     refind.append(len(txt))
 
     i = 0
     j = 0
 
+    count = 0
+
     # Generally expect every reference sequence to be followed by a candidate sequence
     # If two reference sequences appear with no candidate sequence in between, reject read sequence
     while i < len(ref) and j < len(cnd):
         if cndind[j] > refind[i] and cndind[j] < refind[i + 1]:
-            matches.append((ref[i], cnd[j]))
+            concat_ref.append(ref[i])
+            concat_cnd.append(cnd[j])
+            count += 1
             i += 1
             j += 1
         elif cndind[j] < refind[i]:
             j += 1
         else:
             i += 1
+
+    print("Number of processed pairs: " + str(count))
+
+    temp_ref = ''
+    for seq in concat_ref:
+        temp_ref += str(seq)
+
+    temp_cnd = ''
+    for seq in concat_cnd:
+        temp_cnd += str(seq)
+
+    split = 100  # cut every 100 pieces to account for variable length of initial data
+    match_ref = [temp_ref[i:i+split] for i in range(0, len(temp_ref), split)]
+    match_cnd = [temp_cnd[i:i+split] for i in range(0, len(temp_cnd), split)]
+
+    matches = []
+    for i in range(0, min(len(match_ref), len(match_cnd))):
+        matches.append([match_ref[i], match_cnd[i]])
 
     # Return the list of matched sequences
     return matches
@@ -105,8 +128,11 @@ def prepare_data(matches, yhat):
 if __name__ == "__main__":
 
     # Read from specified file sequences starting with tag1 and tag2
-    realMatches = read_matches('Real_Alignments_1.000.000_Lines.txt', 's hg38', 's _HPGPNRMPC ')
+    realMatches = read_matches('Real_Alignments_16.000.000_Lines.txt', 's hg38', 's _HPGPNRMPC ')
     fakeMatches = read_matches('Fake_Alignments_100.000_Lines.txt', 's Human.', 's _HR ')
+
+    print("Number of real paired sequences: " + str(len(realMatches)))
+    print("Number of fake paired sequences: " + str(len(fakeMatches)))
 
     # Encode the sequence characters with binary label: 1 for real, 0 for fake
     X_real, Y_real = prepare_data(realMatches, 1)

@@ -17,8 +17,8 @@ x = range(0, X.shape[0])
 
 plt.figure(figsize=(12., 9.))
 
-plt.plot(x, X[:, 0], c='r', linewidth=2.0)
-plt.plot(x, X[:, 2], c='g', linewidth=2.0)
+plt.plot(x, X[:, 0], c='r', linewidth=1.0)
+plt.plot(x, X[:, 2], c='g', linewidth=1.0)
 # plt.axis('equal')
 plt.xlabel('iteration')
 plt.ylabel('loss')
@@ -29,8 +29,8 @@ plt.close()
 
 plt.figure(figsize=(12., 9.))
 
-plt.plot(x, X[:, 1], c='r', linewidth=2.0)
-plt.plot(x, X[:, 3], c='g', linewidth=2.0)
+plt.plot(x, X[:, 1], c='r', linewidth=1.0)
+plt.plot(x, X[:, 3], c='g', linewidth=1.0)
 # plt.axis('equal')
 plt.xlabel('iteration')
 plt.ylabel('acc')

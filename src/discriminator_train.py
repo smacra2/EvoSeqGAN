@@ -1,8 +1,8 @@
 import pickle
+import numpy as np
 # Disable GPU if model uses LSTM instead of GPU-optimized CuDNNLSTM
 # import os
 # os.environ["CUDA_VISIBLE_DEVICES"]="-1"
-import numpy as np
 from keras.models import Sequential
 from keras.layers import Conv1D, MaxPooling1D, Flatten, Dense, Dropout, BatchNormalization, LSTM, TimeDistributed, \
     CuDNNLSTM
@@ -12,11 +12,11 @@ from keras.callbacks import TensorBoard, EarlyStopping, ModelCheckpoint
 # Define RNN model for 10-dimensional data of unknown length; three layers; 32-16-2
 def discriminator(dropout=0.2):
     model = Sequential()
-    # model.add(LSTM(32, input_shape=(None, 10), return_sequences=True))
-    model.add(CuDNNLSTM(32, input_shape=(None, 10), return_sequences=True))
+    model.add(LSTM(32, input_shape=(None, 10), return_sequences=True))
+    # model.add(CuDNNLSTM(32, input_shape=(None, 10), return_sequences=True))
     model.add(Dropout(dropout))
-    # model.add(LSTM(16, return_sequences=False))
-    model.add(CuDNNLSTM(16, return_sequences=False))
+    model.add(LSTM(16, return_sequences=False))
+    # model.add(CuDNNLSTM(16, return_sequences=False))
     model.add(Dropout(dropout))
     model.add(Dense(2, activation='softmax'))
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
@@ -67,28 +67,29 @@ def train_generator():
 
 
 # Collect logging data during training
-tensorboard = TensorBoard(log_dir='/Project/logs', histogram_freq=0, write_graph=True, write_images=True)
+tensorboard = TensorBoard(log_dir='logs', histogram_freq=0, write_graph=True, write_images=True)
 
 # Stop if no improvement in validation_loss between epochs
-# earlystopping = EarlyStopping(monitor='val_loss', min_delta=0, patience=3, verbose=1, restore_best_weights=True)
+earlystopping = EarlyStopping(monitor='val_loss', min_delta=0, patience=50, verbose=1, restore_best_weights=True)
 
 # Save each epoch's model separately
-# modelcheckpoint = ModelCheckpoint("discriminator-improvement--{epoch:02d}--{val_loss:.2f}.h5", monitor='val_loss',
-#                                   save_best_only=True, mode='auto', verbose=0)
+modelcheckpoint = ModelCheckpoint("discriminator-improvement--{epoch:02d}--{val_loss:.2f}.h5", monitor='val_loss',
+                                  save_best_only=True, mode='auto', verbose=0)
 
 # Train the model with provided data sets
 stepsPerEpoch = 100  # batch size
-numEpochs = int(4 * (len(X) - numVal) / stepsPerEpoch)
+numEpochs = int(4 * (len(X) - numVal) / (stepsPerEpoch * 5))  # keep numEpochs reasonable, i.e. < 1000
 
 historyObject = model.fit_generator(train_generator(), validation_data=validation_generator(),
                                     steps_per_epoch=stepsPerEpoch, epochs=numEpochs, verbose=1,
-                                    validation_steps=numVal, callbacks=[tensorboard])
+                                    validation_steps=numVal, callbacks=[tensorboard, earlystopping, modelcheckpoint],
+                                    workers=8)
 
 # Organize history of discriminator training for later plotting
 val_loss = np.array(historyObject.history['val_loss'])
-val_acc = np.array(historyObject.history['val_acc'])
+val_acc = np.array(historyObject.history['val_accuracy'])
 loss = np.array(historyObject.history['loss'])
-acc = np.array(historyObject.history['acc'])
+acc = np.array(historyObject.history['accuracy'])
 
 hist = np.vstack((val_loss, val_acc, loss, acc)).T
 

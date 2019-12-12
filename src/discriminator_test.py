@@ -59,4 +59,16 @@ for i in range(len(X) - numTest, len(X)):
     print("Sequence number: " + str(i) + " has actual score: " + str(Y[i][0]) + " and predicted score: " +
           str(yhat[0][1]))
 
-print("Model accuracy:" + str(totalCorrect * 1.0 / count))
+r = 0
+f = 0
+for i in range(len(X)):
+    if Y[i][0] == 0:
+        f += 1
+    elif Y[i][0] == 1:
+        r += 1
+    else:
+        print("UNEXPECTED")
+
+print("Real: " + str(r) + ", Fake: " + str(f))
+
+print("Model accuracy: " + str(totalCorrect * 1.0 / count))
