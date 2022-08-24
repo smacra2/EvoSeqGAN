@@ -2,7 +2,7 @@
 
 An LSTM-based WGAN-GP approach to simulating DNA sequence evolution. At the time of writing, EvoSeqGAN cannot use CuDNNLSTM due to lack of support for higher order gradients, so training is restricted to CPU. 
 
-A project undertaken at McGill University within the context of an MSc degree. See thesis Generative Adversarial Networks for the Simulation of DNA Sequence Evolution.pdf for details. Paper to come later. 
+A project undertaken at McGill University within the context of an MSc degree. See thesis Generative_Adversarial_Networks_Simulation_DNA_Sequence_Evolution.pdf for details. Paper to come later. 
 
 # Data
 
